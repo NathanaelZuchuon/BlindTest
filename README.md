@@ -1,4 +1,4 @@
-# Welcome to the BlindTest Website!
+# Welcome to the BlindTest Website
 
 This project is a simple Next.js application created for providing a platform for BlindTest for Otaku fans.
 

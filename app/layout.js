@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-	title: "BlindTest Handler",
+	title: "BlindTest Platform",
 	description: "Created to handle BlindTest for Otaku-fan.",
 	icons: {
 		icon: "/favicon.png",
