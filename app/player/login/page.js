@@ -35,7 +35,7 @@ export default function PlayerLogin() {
 		e.preventDefault();
 		setIsSubmitting(true);
 
-		if (code.length !== 10) {
+		if (code.length !== 10 || code !== localStorage.getItem("sessionCode")) {
 			setError("Invalid session code");
 			setIsSubmitting(false);
 			return;
