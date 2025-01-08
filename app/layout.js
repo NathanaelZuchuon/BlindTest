@@ -5,6 +5,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Analytics } from "@vercel/analytics/react";
 
 import Head from "next/head";
+import Footer from "./components/Footer";
 
 const geistSans = Geist({
 	variable: "--font-geist-sans",
@@ -41,7 +42,10 @@ export default function RootLayout({ children }) {
 					content={metadata.icons.icon}
 				/>
 			</Head>
-			<body>{children}</body>
+			<body>
+				{children}
+				<Footer />
+			</body>
 			<SpeedInsights />
 			<Analytics />
 		</html>
