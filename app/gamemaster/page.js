@@ -20,9 +20,40 @@ export default function GameMaster() {
 			return code;
 		};
 
-		const code = generateSessionCode();
-		setSessionCode(code);
-		localStorage.setItem("sessionCode", code);
+		const sendSessionCode = async (code) => {
+			try {
+				const response = await fetch("/api/reset-code", {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify({ sessionCode: code }),
+				});
+
+				if (!response.ok) {
+					throw new Error("Failed to create the session code.");
+				} else {
+					const data = await response.json();
+					sessionStorage.setItem("players", JSON.stringify(data.players));
+
+					setPlayers(JSON.parse(sessionStorage.getItem("players")));
+				}
+
+			} catch (error) {
+				alert(error);
+			}
+		};
+
+		const storedCode = sessionStorage.getItem("sessionCode");
+		if (!storedCode) {
+			const code = generateSessionCode();
+			sessionStorage.setItem("sessionCode", code);
+			setSessionCode(code);
+			sendSessionCode(code);
+		} else {
+			setSessionCode(storedCode);
+			sendSessionCode(storedCode);
+		}
 	}, []);
 
 	useEffect(() => {
@@ -35,7 +66,7 @@ export default function GameMaster() {
 
 		window.addEventListener("storage", handleStorageChange);
 
-		const storedPlayers = JSON.parse(localStorage.getItem("players") || "[]");
+		const storedPlayers = JSON.parse(sessionStorage.getItem("players") || "[]");
 		setPlayers(storedPlayers);
 	}, []);
 
@@ -63,9 +94,9 @@ export default function GameMaster() {
 						</p>
 					) : (
 						<ul className="space-y-2">
-							{players.map((player) => (
+							{players.map((player, index) => (
 								<li
-									key={player.id}
+									key={index}
 									className="flex items-center justify-between bg-gray-50 p-3 rounded"
 								>
 									<span>{player.name}</span>

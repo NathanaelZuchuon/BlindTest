@@ -7,32 +7,33 @@ import { useRouter } from "next/navigation";
 export default function PlayerDashboard() {
 	const router = useRouter();
 	const [players, setPlayers] = useState([]);
-	const [playerName, setPlayerName] = useState("");
+	const [loading, setLoading] = useState(true);
+	const [playerName, setPlayerName] = useState(null);
 
 	useEffect(() => {
-		const code = localStorage.getItem("sessionCode");
+		const name = sessionStorage.getItem("playerName");
 
-		const storedPlayers = JSON.parse(
-			localStorage.getItem("players") || "[]"
-		);
-
-		const lastPlayer = storedPlayers[storedPlayers.length - 1];
-		const name = lastPlayer ? lastPlayer.name : null;
-
-		if (!code || !name) {
-			if (router.asPath !== "/player/login") {
-				router.push("/player/login");
-			}
+		if (!name) {
+			router.push("/player/login");
 			return;
 		}
 
 		setPlayerName(name);
 		setPlayers([
-			{ id: "1", name: name || "You", joinedAt: lastPlayer.joinedAt },
+			{ id: "1", name: name || "You", joinedAt: sessionStorage.getItem("joinedAt"), },
 			{ id: "2", name: "Player 2", joinedAt: new Date() },
 			{ id: "3", name: "Player 3", joinedAt: new Date() },
 		]);
+		setLoading(false);
 	}, [router]);
+
+	if (loading) {
+		return ( <div></div> );
+	}
+
+	if (playerName === null) {
+		return null;
+	}
 
 	return (
 		<div className="min-h-screen bg-gray-100 p-8">

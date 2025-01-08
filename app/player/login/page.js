@@ -11,50 +11,23 @@ export default function PlayerLogin() {
 	const [error, setError] = useState("");
 	const [isSubmitting, setIsSubmitting] = useState(false);
 
-	const session = {
-		emit: (event, data) => {
-			if (event == "players") {
-				const existingPlayers = session.getItem("players") || [];
-
-				const playerExists = existingPlayers.some(
-					(player) => player.name === data.name
-				);
-
-				if (!playerExists) {
-					const updatedPlayers = [...existingPlayers, data];
-					localStorage.setItem(event, JSON.stringify(updatedPlayers));
-				}
-			}
-		},
-		getItem: (event) => {
-			return JSON.parse(localStorage.getItem(event));
-		},
-	};
-
 	const handleSubmit = async (e) => {
 		e.preventDefault();
 		setIsSubmitting(true);
 
-		if (code.length !== 10 || code !== localStorage.getItem("sessionCode")) {
-			setError("Invalid session code");
+		if (code.length !== 10) {
+			setError("Invalid session code.");
 			setIsSubmitting(false);
 			return;
 		}
 
 		if (name.length < 2) {
-			setError("Name must be at least 2 characters long");
+			setError("Name must be at least 2 characters long.");
 			setIsSubmitting(false);
 			return;
 		}
 
 		try {
-			const player = {
-				id: Date.now(),
-				name: name,
-				joinedAt: new Date().toISOString(),
-			};
-			session.emit("players", player);
-
 			const response = await fetch("/api/join-session", {
 				method: "POST",
 				headers: {
@@ -63,14 +36,22 @@ export default function PlayerLogin() {
 				body: JSON.stringify({ code, name }),
 			});
 
+			const data = await response.json();
+
 			if (response.ok) {
+				sessionStorage.setItem("playerName", data.playerName);
+				sessionStorage.setItem("points", data.points);
+				sessionStorage.setItem("joinedAt", data.joinedAt);
+
 				router.push("/player/dashboard");
+
 			} else {
-				setError("Failed to join game session -");
+				setError(data.error);
+				setIsSubmitting(false);
 			}
 
 		} catch (error) {
-			setError("Failed to join game session");
+			setError("Failed to join game session.");
 			setIsSubmitting(false);
 		}
 	};

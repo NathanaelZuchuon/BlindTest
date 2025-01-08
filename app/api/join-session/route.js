@@ -1,7 +1,70 @@
+import { db } from "@/app/lib/firebase";
+import {
+	doc,
+	getDoc,
+	setDoc,
+	serverTimestamp,
+} from "firebase/firestore";
+
 export async function POST(req) {
 	try {
+		// Checking data received
+		const { code, name } = await req.json();
+		if (!code || !name) {
+			return new Response(
+				JSON.stringify({ error: "Code and pseudo required." }),
+				{
+					status: 400,
+					headers: { "Content-Type": "application/json" },
+				}
+			);
+		}
+
+		// Session code verification
+		const sessionDoc = doc(db, "session", "sessionInfos");
+		const sessionSnapshot = await getDoc(sessionDoc);
+
+		if (
+			!sessionSnapshot.exists() ||
+			sessionSnapshot.data().sessionCode !== code
+		) {
+			return new Response(
+				JSON.stringify({ error: "This session code doesn't exist." }),
+				{
+					status: 404,
+					headers: { "Content-Type": "application/json" },
+				}
+			);
+		}
+
+		// Check if pseudo already exists
+		const playerDoc = doc(db, "players", name);
+		const playerSnapshot = await getDoc(playerDoc);
+
+		if (playerSnapshot.exists()) {
+			return new Response(
+				JSON.stringify({ error: "This pseudo is already in use." }),
+				{
+					status: 409,
+					headers: { "Content-Type": "application/json" },
+				}
+			);
+		}
+
+		await setDoc(doc(db, "players", name), {
+			points: 0,
+			joinedAt: serverTimestamp(),
+		});
+
+		// If everything is OK
 		return new Response(
-			JSON.stringify({ message: "Player joined successfully" }),
+			JSON.stringify({
+				playerName: name,
+				points: 0,
+				joinedAt: (await getDoc(doc(db, "players", name)))
+					.data()
+					.joinedAt.toDate(),
+			}),
 			{
 				status: 200,
 				headers: { "Content-Type": "application/json" },
@@ -9,13 +72,10 @@ export async function POST(req) {
 		);
 
 	} catch (error) {
-		console.error("Error in join-session API: ", error);
-		return new Response(
-			JSON.stringify({ error: "Internal server error" }),
-			{
-				status: 500,
-				headers: { "Content-Type": "application/json" },
-			}
-		);
+		console.error("API join-session error: ", error);
+		return new Response(JSON.stringify({ error: "Internal Server Error." }), {
+			status: 500,
+			headers: { "Content-Type": "application/json" },
+		});
 	}
 }
