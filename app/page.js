@@ -17,13 +17,13 @@ export default function Home() {
 						<div className="flex items-center space-x-4">
 							<Link
 								href="/gamemaster"
-								className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md"
+								className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md h-12 flex items-center justify-center flex-grow"
 							>
 								Game Master
 							</Link>
 							<Link
 								href="/player/login"
-								className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md"
+								className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md h-12 flex items-center justify-center flex-grow"
 							>
 								Player
 							</Link>

@@ -42,6 +42,7 @@ export default function PlayerLogin() {
 				sessionStorage.setItem("playerName", data.playerName);
 				sessionStorage.setItem("points", data.points);
 				sessionStorage.setItem("joinedAt", data.joinedAt);
+				sessionStorage.setItem("sessionCode", code);
 
 				router.push("/player/dashboard");
 

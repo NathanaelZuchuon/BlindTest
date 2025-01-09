@@ -1,5 +1,5 @@
 import { db } from "@/app/lib/firebase";
-import { doc, updateDoc, collection, getDocs } from "firebase/firestore";
+import { doc, query, where, setDoc, getDoc, collection, getDocs } from "firebase/firestore";
 
 export async function POST(req) {
 	const { sessionCode } = await req.json();
@@ -22,13 +22,19 @@ export async function POST(req) {
 			});
 		}
 
-		const sessionRef = doc(db, "session", "sessionInfos");
-		await updateDoc(sessionRef, {
-			sessionCode: sessionCode,
-		});
+		const sessionRef = doc(db, "sessions", sessionCode);
+		const sessionDoc = await getDoc(sessionRef);
+
+		if (!sessionDoc.exists()) {
+			await setDoc(sessionRef, {});
+		}
 
 		const playersCollectionRef = collection(db, "players");
-		const playersSnapshot = await getDocs(playersCollectionRef);
+		const q = query(
+			playersCollectionRef,
+			where("sessionCode", "==", sessionCode)
+		);
+		const playersSnapshot = await getDocs(q);
 
 		if (playersSnapshot.empty) {
 			return hey([]);

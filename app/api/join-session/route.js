@@ -3,6 +3,8 @@ import {
 	doc,
 	getDoc,
 	setDoc,
+	getDocs,
+	collection,
 	serverTimestamp,
 } from "firebase/firestore";
 
@@ -21,13 +23,18 @@ export async function POST(req) {
 		}
 
 		// Session code verification
-		const sessionDoc = doc(db, "session", "sessionInfos");
-		const sessionSnapshot = await getDoc(sessionDoc);
+		const sessionsCollectionRef = collection(db, "sessions");
+		const querySnapshot = await getDocs(sessionsCollectionRef);
 
-		if (
-			!sessionSnapshot.exists() ||
-			sessionSnapshot.data().sessionCode !== code
-		) {
+		let codeExists = false;
+
+		querySnapshot.forEach((doc) => {
+			if (doc.id === code) {
+				codeExists = true;
+			}
+		});
+
+		if (!codeExists) {
 			return new Response(
 				JSON.stringify({ error: "This session code doesn't exist." }),
 				{
@@ -54,6 +61,7 @@ export async function POST(req) {
 		await setDoc(doc(db, "players", name), {
 			points: 0,
 			joinedAt: serverTimestamp(),
+			sessionCode: code,
 		});
 
 		// If everything is OK
@@ -70,7 +78,6 @@ export async function POST(req) {
 				headers: { "Content-Type": "application/json" },
 			}
 		);
-
 	} catch (error) {
 		console.error("API join-session error: ", error);
 		return new Response(JSON.stringify({ error: "Internal Server Error." }), {
