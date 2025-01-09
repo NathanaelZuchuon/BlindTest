@@ -13,14 +13,20 @@ export default function PlayerDashboard() {
 	useEffect(() => {
 		const name = sessionStorage.getItem("playerName");
 
+		// If he doesn't have a name, he wanted to enter without using /player/login
 		if (!name) {
 			router.push("/player/login");
 			return;
 		}
 
+		// Set playerName with `name`
 		setPlayerName(name);
 		setPlayers([
-			{ id: "1", name: name || "You", joinedAt: sessionStorage.getItem("joinedAt"), },
+			{
+				id: "1",
+				name: name || "You",
+				joinedAt: sessionStorage.getItem("joinedAt"),
+			},
 			{ id: "2", name: "Player 2", joinedAt: new Date() },
 			{ id: "3", name: "Player 3", joinedAt: new Date() },
 		]);

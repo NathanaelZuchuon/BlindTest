@@ -3,6 +3,7 @@
 
 import Link from 'next/link'
 
+// Landing page
 export default function Home() {
 	return (
 		<div className="min-h-screen bg-gray-100">

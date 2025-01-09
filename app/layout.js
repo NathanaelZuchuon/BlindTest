@@ -6,6 +6,7 @@ import { Analytics } from "@vercel/analytics/react";
 import Head from "next/head";
 import Footer from "./components/Footer";
 
+// Metadatas
 export const metadata = {
 	title: "BlindTest Platform",
 	description: "Created to handle BlindTest for Otaku-fan.",
@@ -14,6 +15,7 @@ export const metadata = {
 	},
 };
 
+// Basic layout of all pages
 export default function RootLayout({ children }) {
 	return (
 		<html lang="fr">

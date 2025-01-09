@@ -3,38 +3,48 @@
 
 import { v4 as uuidv4 } from "uuid";
 import { useState, useEffect } from "react";
+import { useRefreshPlayers } from "./useRefreshPlayers";
 
 export default function GameMaster() {
 	const [sessionCode, setSessionCode] = useState("");
-	const [players, setPlayers] = useState([]);
 	const [isAuthenticated, setIsAuthenticated] = useState(false);
 	const [inputValue, setInputValue] = useState("");
 	const [error, setError] = useState("");
 
-	useEffect(() => {
-		const generateSessionCode = () => {
-			const uuid = uuidv4();
-			const code = uuid.replace(/-/g, "").substring(0, 10);
-			return code;
-		};
+	// Active listening, so that we always have all players of the session
+	const { players } = useRefreshPlayers(sessionCode);
+	// ---
 
-		const sendSessionCode = async (code) => {
+	useEffect(() => {
+		// No authentication, no action
+		if (!isAuthenticated) return;
+
+		const generateAndSetSessionCode = async () => {
+
+			// Check if a sesson code already exists
+			const existingCode = sessionStorage.getItem("sessionCode");
+			if (existingCode) {
+				setSessionCode(existingCode);
+				return;
+			}
+
+			// Generate a new code
+			const newCode = uuidv4().replace(/-/g, "").substring(0, 10);
+			setSessionCode(newCode);
+			sessionStorage.setItem("sessionCode", newCode);
+
 			try {
+				// Send new session code to database
 				const response = await fetch("/api/reset-code", {
 					method: "POST",
 					headers: {
 						"Content-Type": "application/json",
 					},
-					body: JSON.stringify({ sessionCode: code }),
+					body: JSON.stringify({ sessionCode: newCode }),
 				});
 
 				if (!response.ok) {
 					throw new Error("Failed to create the session code.");
-				} else {
-					const data = await response.json();
-					sessionStorage.setItem("players", JSON.stringify(data.players));
-
-					setPlayers(JSON.parse(sessionStorage.getItem("players")));
 				}
 
 			} catch (error) {
@@ -42,33 +52,8 @@ export default function GameMaster() {
 			}
 		};
 
-		const storedCode = sessionStorage.getItem("sessionCode");
-		if (isAuthenticated) {
-			if (!storedCode) {
-				const code = generateSessionCode();
-				sessionStorage.setItem("sessionCode", code);
-				setSessionCode(code);
-				sendSessionCode(code);
-			} else {
-				setSessionCode(storedCode);
-				sendSessionCode(storedCode);
-			}
-		}
+		generateAndSetSessionCode();
 	}, [isAuthenticated]);
-
-	useEffect(() => {
-		const handleStorageChange = (event) => {
-			if (event.key === "players") {
-				const updatedPlayers = JSON.parse(event.newValue || "[]");
-				setPlayers(updatedPlayers);
-			}
-		};
-
-		window.addEventListener("storage", handleStorageChange);
-
-		const storedPlayers = JSON.parse(sessionStorage.getItem("players") || "[]");
-		setPlayers(storedPlayers);
-	}, []);
 
 	const handleSubmit = (e) => {
 		e.preventDefault();
@@ -83,6 +68,7 @@ export default function GameMaster() {
 		}
 	};
 
+	// Not authentificated
 	if (!isAuthenticated) {
 		return (
 			<div className="min-h-screen bg-gray-100 flex items-center justify-center">

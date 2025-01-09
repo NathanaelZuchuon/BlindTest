@@ -69,7 +69,7 @@ export async function POST(req) {
 			JSON.stringify({
 				playerName: name,
 				points: 0,
-				joinedAt: (await getDoc(doc(db, "players", name)))
+				joinedAt: (await getDoc(doc(db, "players", name))) // Retrieve exact connection time
 					.data()
 					.joinedAt.toDate(),
 			}),
