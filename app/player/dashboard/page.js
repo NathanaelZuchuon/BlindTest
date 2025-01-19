@@ -13,6 +13,7 @@ export default function PlayerDashboard() {
 	const [loading, setLoading] = useState(true);
 	const [playerName, setPlayerName] = useState(null);
 
+	const [id, setId] = useState("");
 	const [score, setScore] = useState(0);
 	const [answer, setAnswer] = useState("");
 
@@ -41,7 +42,11 @@ export default function PlayerDashboard() {
 	// ---
 
 	// Active listening on the current session question
-	const id = sessionStorage.getItem("sessionCode");
+	useEffect(() => {
+		const hey = sessionStorage.getItem("sessionCode");
+		setId(hey);
+	}, []);
+
 	const { currentQuestion, points } = useCurrentQuestion(id ? id : null, playerName);
 
 	// Active listening on the session'points
