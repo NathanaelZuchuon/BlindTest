@@ -20,7 +20,7 @@ export async function POST(req) {
 
 		// Creation of a new session
 		if (!sessionDoc.exists()) {
-			await setDoc(sessionRef, {});
+			await setDoc(sessionRef, { currentQuestion: "No question yet."});
 		}
 
 		return new Response(JSON.stringify({}), {

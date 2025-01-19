@@ -62,6 +62,7 @@ export async function POST(req) {
 			points: 0,
 			joinedAt: serverTimestamp(),
 			sessionCode: code,
+			answer: "",
 		});
 
 		// If everything is OK
@@ -72,6 +73,7 @@ export async function POST(req) {
 				joinedAt: (await getDoc(doc(db, "players", name))) // Retrieve exact connection time
 					.data()
 					.joinedAt.toDate(),
+				answer: "",
 			}),
 			{
 				status: 200,

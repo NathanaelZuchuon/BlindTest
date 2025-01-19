@@ -12,10 +12,11 @@ export const useRefreshPlayers = (code) => {
 
 		// Once a player is added, we return all players in the session
 		const unsubscribe = onSnapshot(q, (snapshot) => {
-            const allPlayers = snapshot.docs.map((doc) => ({
+			const allPlayers = snapshot.docs.map((doc) => ({
 				name: doc.id,
 				points: doc.data().points,
 				joinedAt: doc.data().joinedAt.toDate(),
+				answer: doc.data().answer,
 			}));
 			setPlayers(allPlayers);
 		});

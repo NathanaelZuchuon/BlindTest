@@ -39,10 +39,11 @@ export default function PlayerLogin() {
 			const data = await response.json();
 
 			if (response.ok) {
-				sessionStorage.setItem("playerName", data.playerName);
+				sessionStorage.setItem("answer", "");
+				sessionStorage.setItem("sessionCode", code);
 				sessionStorage.setItem("points", data.points);
 				sessionStorage.setItem("joinedAt", data.joinedAt);
-				sessionStorage.setItem("sessionCode", code);
+				sessionStorage.setItem("playerName", data.playerName);
 
 				router.push("/player/dashboard");
 
