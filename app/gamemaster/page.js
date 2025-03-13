@@ -1,4 +1,3 @@
-
 "use client";
 
 import { v4 as uuidv4 } from "uuid";
@@ -160,6 +159,38 @@ export default function GameMaster() {
 		selectedPlayer?.name &&
 		selectedPlayer?.answer &&
 		evaluatedAnswers.get(selectedPlayer.name) === selectedPlayer.answer;
+	// ---
+
+	// New question submittion
+	const handleNext = async () => {
+		if (questions.length === 0) return;
+
+		const lastQuestion = questions[questions.length - 1];
+
+		try {
+			alert("Sending question...");
+
+			const response = await fetch("/api/next-question", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					sessionCode: sessionCode,
+					question: lastQuestion,
+				}),
+			});
+
+			if (!response.ok) {
+				throw new Error("Failed to send the question.");
+			} else {
+				alert("Question sent !");
+			}
+		} catch (error) {
+			alert("Error sending question: " + error.message);
+		}
+	};
+	// ---
 
 	// Not authentificated
 	if (!isAuthenticated) {
@@ -362,7 +393,10 @@ export default function GameMaster() {
 					{/* Footer */}
 					<footer className="bg-white shadow-md mt-auto py-4 px-6 w-full">
 						<div className="max-w-7xl mx-auto flex justify-center">
-							<button className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 flex items-center space-x-2">
+							<button
+								onClick={handleNext}
+								className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 flex items-center space-x-2"
+							>
 								<span>Next</span>
 								<FontAwesomeIcon
 									icon={faChevronRight}
